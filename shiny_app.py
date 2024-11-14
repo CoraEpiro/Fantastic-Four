@@ -56,17 +56,23 @@ def create_map(hour, view_type="Popular Routes"):
         
         m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
 
-        
+        station_name_pickup = df[df['Pickup ID'] == pickup_id]['name'].iloc[0]
+        station_name_dropoff = df[df['Dropoff ID'] == dropoff_id]['name_dropoff'].iloc[0]
+              
         # Add pickup and dropoff markers with specific colors
         folium.Marker(
             [pickup_location['Pickup Latitude'], pickup_location['Pickup Longitude']],
-            popup=f'Pickup ID: {pickup_id}',
+            popup=(f'Station Name: {station_name_pickup}<br><br>'
+                         f'Pickup ID: {pickup_id}<br><br>'
+                         f'3 rides this hour'),
             icon=folium.Icon(color='green')
         ).add_to(m)
         
         folium.Marker(
             [dropoff_location['Dropoff Latitude'], dropoff_location['Dropoff Longitude']],
-            popup=f'Dropoff ID: {dropoff_id}',
+            popup=(f'Station Name: {station_name_dropoff}<br><br>'
+                         f'Dropoff ID: {dropoff_id}<br><br>'
+                         f'4 rides this hour'),
             icon=folium.Icon(color='blue')
         ).add_to(m)
         
