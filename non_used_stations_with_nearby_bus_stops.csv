@@ -1,6 +1,0 @@
-index,name,district,latitude,longitude,Nearby Bus Stops
-13,Kirchanhausen,Kirchanhausen,49.01912,11.458528,[]
-14,"Beilngries, Zinnerhof",Beilngries,49.024358,11.449795,[]
-56,"Kottingwoerth, Alte Salzstrasse",Kottingw√∂rth,49.022177,11.516433,[]
-60,"Oberndorf, Kirche",Kevenh√ºll,49.062452,11.499875,"[{'business_status': 'OPERATIONAL', 'geometry': {'location': {'lat': 49.0640716, 'lng': 11.4997741}, 'viewport': {'northeast': {'lat': 49.0654258302915, 'lng': 11.5010575802915}, 'southwest': {'lat': 49.0627278697085, 'lng': 11.4983596197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/bus-71.png', 'icon_background_color': '#10BDFF', 'icon_mask_base_uri': 'https://maps.gstatic.com/mapfiles/place_api/icons/v2/bus_share_taxi_pinlet', 'name': 'Oberndorf (b. Beilngries)', 'place_id': 'ChIJsfvqo3cMn0cR_QoIWH4LdA0', 'plus_code': {'compound_code': '3F7X+JW Beilngries, Germany', 'global_code': '8FXH3F7X+JW'}, 'reference': 'ChIJsfvqo3cMn0cR_QoIWH4LdA0', 'scope': 'GOOGLE', 'types': ['bus_station', 'transit_station', 'point_of_interest', 'establishment'], 'vicinity': 'Germany'}]"
-69,Betriebshof Hengl,Hiendorf,48.83449,11.64253,[]
