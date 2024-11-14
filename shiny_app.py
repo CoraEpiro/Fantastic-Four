@@ -19,6 +19,9 @@ df.dropna(inplace=True)
 
 # Ensure date columns are in datetime format
 df['Actual Pickup Time'] = pd.to_datetime(df['Actual Pickup Time'])
+
+center_lat, center_lon = 48.99763353708334, 11.47434937975292
+
 df['Actual Dropoff Time'] = pd.to_datetime(df['Actual Dropoff Time'])
 
 # Create 'Is Canceled' column based on 'Status'
@@ -51,11 +54,8 @@ def create_map(hour, view_type="Popular Routes"):
         route_polyline = directions_result[0]['overview_polyline']['points']
         route_coords = polyline.decode(route_polyline)
         
-        m = folium.Map(
-            location=[(pickup_location['Pickup Latitude'] + dropoff_location['Dropoff Latitude']) / 2,
-                      (pickup_location['Pickup Longitude'] + dropoff_location['Dropoff Longitude']) / 2],
-            zoom_start=12
-        )
+        m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
+
         
         # Add pickup and dropoff markers with specific colors
         folium.Marker(
@@ -80,7 +80,7 @@ def create_map(hour, view_type="Popular Routes"):
         if not stations.empty:
             first_station = stations.iloc[0]
             pickup_location = df[df['Pickup ID'] == first_station['Pickup ID']][['Pickup Latitude', 'Pickup Longitude']].iloc[0]
-            m = folium.Map(location=[pickup_location['Pickup Latitude'], pickup_location['Pickup Longitude']], zoom_start=12)
+            m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
             
             # Add markers for cancellation rates
             for _, station in stations.iterrows():
