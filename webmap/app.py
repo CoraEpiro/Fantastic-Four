@@ -6,8 +6,8 @@ from folium.plugins import HeatMap
 from shiny import App, ui, render, run_app
 
 # Load data from Excel files
-bus_stops_df = pd.read_excel('data/FLEXI_bus_stops.xls')
-trip_data_df = pd.read_excel('data/FLEXI_trip_data.xls')
+bus_stops_df = pd.read_excel('../data/FLEXI_bus_stops.xls')
+trip_data_df = pd.read_excel('../data/FLEXI_trip_data.xls')
 
 # Merge and process data
 df = trip_data_df.merge(bus_stops_df, how='left', left_on='Pickup ID', right_on='index', suffixes=('_pickup', '_dropoff'))
@@ -38,6 +38,20 @@ most_popular_routes_by_hour = df.groupby('Hour')['Route'].agg(lambda x: x.value_
 # Initialize Google Maps client with your API key
 gmaps = googlemaps.Client(key='AIzaSyCql1sz_qlUWL_9q1BEfuxBP3yHKN2wI1c')
 
+def popup_style(station_name, station_id, rides):
+    # Styled HTML for popup
+    return f"""
+    <div style="
+        min-width: 150px;
+    ">
+        <h4 style="margin: 0 0 5px; font-size: 16px; color: #333;">{station_name}</h4>
+        <p style="margin: 5px 0; font-size: 14px; color: #555;">
+            <strong>Station ID:</strong> {station_id}<br>
+            <strong>Rides this hour:</strong> {rides}
+        </p>
+    </div>
+    """
+
 # Define function to create map
 def create_map(hour, view_type="Popular Routes"):
     if view_type == "Popular Routes":
@@ -56,29 +70,29 @@ def create_map(hour, view_type="Popular Routes"):
         
         m = folium.Map(location=[center_lat, center_lon], zoom_start=12)
 
+        # Styled popup for pickup marker
         station_name_pickup = df[df['Pickup ID'] == pickup_id]['name'].iloc[0]
-        station_name_dropoff = df[df['Dropoff ID'] == dropoff_id]['name_dropoff'].iloc[0]
-              
-        # Add pickup and dropoff markers with specific colors
+        pickup_popup = popup_style(station_name_pickup, pickup_id, 3)
+        
         folium.Marker(
             [pickup_location['Pickup Latitude'], pickup_location['Pickup Longitude']],
-            popup=(f'Station Name: {station_name_pickup}<br><br>'
-                         f'Pickup ID: {pickup_id}<br><br>'
-                         f'3 rides this hour'),
+            popup=pickup_popup,
             icon=folium.Icon(color='green')
         ).add_to(m)
+
+        # Styled popup for dropoff marker
+        station_name_dropoff = df[df['Dropoff ID'] == dropoff_id]['name_dropoff'].iloc[0]
+        dropoff_popup = popup_style(station_name_dropoff, dropoff_id, 4)
         
         folium.Marker(
             [dropoff_location['Dropoff Latitude'], dropoff_location['Dropoff Longitude']],
-            popup=(f'Station Name: {station_name_dropoff}<br><br>'
-                         f'Dropoff ID: {dropoff_id}<br><br>'
-                         f'4 rides this hour'),
+            popup=dropoff_popup,
             icon=folium.Icon(color='blue')
         ).add_to(m)
         
         # Add polyline for route with specific color
         folium.PolyLine(route_coords, color='#ad579d', weight=5).add_to(m)
-        
+
     elif view_type == "Cancellation Rates":
         stations = df[df['Hour'] == hour].groupby('Pickup ID').agg(
             cancellation_percentage=('Is Canceled', 'mean')).reset_index()
@@ -93,11 +107,25 @@ def create_map(hour, view_type="Popular Routes"):
                 pickup_id = station['Pickup ID']
                 hourly_cancellation_rate = station['cancellation_percentage'] * 100
                 pickup_location = df[df['Pickup ID'] == pickup_id][['Pickup Latitude', 'Pickup Longitude']].iloc[0]
+                station_name_pickup = df[df['Pickup ID'] == pickup_id]['name'].iloc[0]
+
+                # Styled popup for cancellation rates
+                cancellation_popup = f"""
+                <div style="
+                    min-width: 150px;
+                ">
+                    <h4 style="margin: 0 0 5px; font-size: 16px; color: #b33;">Cancellation Rate</h4>
+                    <h4 style="margin: 0 0 5px; font-size: 16px; color: #333;">{station_name_pickup}</h4>
+                    <p style="margin: 5px 0; font-size: 14px; color: #555;">
+                        <strong>Station ID:</strong> {pickup_id}<br>
+                        <strong>Hourly Cancellation Rate:</strong> {hourly_cancellation_rate:.2f}%
+                    </p>
+                </div>
+                """
                 
                 folium.Marker(
                     [pickup_location['Pickup Latitude'], pickup_location['Pickup Longitude']],
-                    popup=(f'Pickup ID: {pickup_id}<br>'
-                           f'Hourly Cancellation Rate: {hourly_cancellation_rate:.2f}%'),
+                    popup=cancellation_popup,
                     icon=folium.Icon(color='red')
                 ).add_to(m)
 
@@ -108,13 +136,42 @@ def create_map(hour, view_type="Popular Routes"):
 
 app_ui = ui.page_fluid(
     ui.tags.style("""
-        #map { height: 100vh; width: 100vw; position: absolute; top: 0; left: 0; overflow: hidden; }
+        /* Apply full-screen height to the main map container */
+        #map { 
+            height: 100vh; 
+            width: 100vw; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            overflow: hidden; 
+        }
+
+        /* Target all children of #map and force them to occupy full height */
+        #map * {
+            height: 100%;
+            min-height: 100vh; /* Minimum height to keep full screen on mobile */
+            width: 100%;
+        }
+
         .popup-container {
-            position: absolute; top: 20px; left: 20px;
-            background-color: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); max-width: 300px; z-index: 1000;
+            position: absolute; 
+            top: 20px; 
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.9); 
+            padding: 15px; 
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            max-width: 300px; 
+            z-index: 1000;
+        }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 768px) {
+            #map { height: 100vh; width: 100vw; }
+            .popup-container { width: 90%; left: 5%; }
         }
     """),
+    ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1.0"),
     ui.div(ui.output_ui("map"), id="map"),
     ui.div(
         ui.div(
@@ -137,7 +194,6 @@ def server(input, output, session):
         if view_type == "Popular Routes":
             hour = input.hour()
             route = most_popular_routes_by_hour[hour]
-            # Unpack the pickup and dropoff IDs properly
             pickup_id, dropoff_id = [int(x) for x in route.split('-')]  # Convert to integers here
 
             pickup_location = df[df['Pickup ID'] == pickup_id][['Pickup Latitude', 'Pickup Longitude']].iloc[0]
