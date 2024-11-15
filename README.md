@@ -23,6 +23,8 @@
 ## Introduction
 This project analyzes the VGI Flexi bus service data to understand various aspects of the service, such as demand patterns, popular routes, and cancellation reasons. The analysis is performed using Python and Jupyter Notebooks.
 
+Visit our platforn in the following [link](https://fantasticfour.bio.link).
+
 ## Project Structure
 
 - `main.ipynb`: The main Jupyter Notebook containing the data analysis and visualization.
@@ -88,6 +90,12 @@ This project analyzes the VGI Flexi bus service data to understand various aspec
 4. **Install additional packages used in the notebooks:**
     ```sh
     pip install numpy matplotlib pandas folium ydata_profiling scikit-learn googlemaps shiny
+    ```
+
+4. **Replace the Google API Key:**
+    ```python
+    gmaps = googlemaps.Client(key='YOUR_GOOGLE_API_KEY')
+
     ```
 
 ## Usage

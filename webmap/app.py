@@ -36,7 +36,7 @@ df['Trip Duration'] = (df['Actual Dropoff Time'] - df['Actual Pickup Time']).dt.
 most_popular_routes_by_hour = df.groupby('Hour')['Route'].agg(lambda x: x.value_counts().idxmax())
 
 # Initialize Google Maps client with your API key
-gmaps = googlemaps.Client(key='AIzaSyCql1sz_qlUWL_9q1BEfuxBP3yHKN2wI1c')
+gmaps = googlemaps.Client(key='YOUR_GOOGLE_API_KEY')
 
 def popup_style(station_name, station_id, rides):
     # Styled HTML for popup
